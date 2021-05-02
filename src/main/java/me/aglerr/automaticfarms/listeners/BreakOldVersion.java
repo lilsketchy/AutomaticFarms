@@ -30,8 +30,6 @@ public class BreakOldVersion implements Listener {
     public void onPlayerBreak(BlockBreakEvent event){
 
         FileConfiguration config = plugin.getConfig();
-
-        Player player = event.getPlayer();
         Block block = event.getBlock();
 
         if(plugin.isBlockGrowing(block)){
@@ -58,7 +56,6 @@ public class BreakOldVersion implements Listener {
             blockState.update();
 
             plugin.addGrowingBlock(block);
-            this.dropItem(block.getDrops(player.getItemInHand()), block.getLocation());
             this.dropItemRandomly(XMaterial.NETHER_WART.parseMaterial(), block.getLocation());
 
             Utils.regrowsOldNetherWart(plugin, blockState, location);
@@ -78,7 +75,7 @@ public class BreakOldVersion implements Listener {
             blockState.update();
 
             plugin.addGrowingBlock(block);
-            this.dropItem(block.getDrops(player.getItemInHand()), block.getLocation());
+            this.dropItemRandomly(XMaterial.WHEAT_SEEDS.parseMaterial(), block.getLocation());
             this.dropItemRandomly(XMaterial.WHEAT.parseMaterial(), block.getLocation());
 
             Utils.regrowsOldVersion(plugin, blockState, location);
@@ -98,19 +95,13 @@ public class BreakOldVersion implements Listener {
             blockState.update();
 
             plugin.addGrowingBlock(block);
-            this.dropItem(block.getDrops(player.getItemInHand()), block.getLocation());
+            this.dropItemRandomly(block.getType(), block.getLocation());
 
             Utils.regrowsOldVersion(plugin, blockState, location);
 
         }
 
 
-    }
-
-    private void dropItem(Collection<ItemStack> stack, Location location){
-        for(ItemStack item : stack){
-            location.getWorld().dropItemNaturally(location, item);
-        }
     }
 
     private void dropItemRandomly(Material material, Location location){
