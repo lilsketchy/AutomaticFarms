@@ -57,8 +57,6 @@ public class BreakOldVersion implements Listener {
     @EventHandler
     public void playerBreakCactus(BlockBreakEvent event){
 
-        Bukkit.broadcastMessage(event.getBlock().getType().toString());
-
         Block block = event.getBlock();
         Location location = block.getLocation().clone().add(0.5, 1, 0.5);
 
