@@ -1,0 +1,9 @@
+crops:
+  carrots: true
+  potato: true
+  wheat: true
+  netherWart: true
+
+checks:
+  # Should we only regrowing crops that are already fully grown?
+  onlyFullyGrown: true
