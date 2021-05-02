@@ -46,7 +46,7 @@ public class Utils {
 
     public static void summonParticle(AutomaticFarms plugin, Location location) {
         for (int d = 0; d <= 90; d++) {
-            Location particleLoc = new Location(location.getWorld(), location.getX(), location.getY(), location.getZ());
+            Location particleLoc = location.clone();
             particleLoc.setX(location.getX() + Math.cos(d) * 0.4);
             particleLoc.setZ(location.getZ() + Math.sin(d) * 0.4);
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () ->
