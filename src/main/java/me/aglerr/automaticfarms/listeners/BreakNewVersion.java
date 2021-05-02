@@ -1,6 +1,8 @@
 package me.aglerr.automaticfarms.listeners;
 
 import me.aglerr.automaticfarms.AutomaticFarms;
+import me.aglerr.automaticfarms.managers.CropsManager;
+import me.aglerr.automaticfarms.managers.GrowingManager;
 import me.aglerr.automaticfarms.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -28,16 +30,19 @@ public class BreakNewVersion implements Listener {
         Player player = event.getPlayer();
         Block block = event.getBlock();
 
-        if(plugin.isBlockGrowing(block)) {
+        CropsManager cropsManager = plugin.getCropsManager();
+        GrowingManager growingManager = plugin.getGrowingManager();
+
+        if(growingManager.isBlockGrowing(block)){
             event.setCancelled(true);
             return;
         }
 
-        if(!plugin.getCrops().contains(block.getType())) return;
+        if(!cropsManager.isMaterialExist(block.getType())) return;
         if(!(block.getBlockData() instanceof Ageable)) return;
 
         if(config.getBoolean("checks.onlyFullyGrown")){
-            if(!Utils.isFullyGrown(block)) return;
+            if(!growingManager.isFullyGrown(block)) return;
         }
 
         event.setCancelled(true);
@@ -47,15 +52,9 @@ public class BreakNewVersion implements Listener {
         }
 
         Ageable ageable = (Ageable) block.getBlockData();
-        int targetAge = ageable.getAge();
-
         Location location = block.getLocation().clone().add(0.5, 1, 0.5);
 
-        ageable.setAge(0);
-        block.setBlockData(ageable);
-
-        plugin.addGrowingBlock(block);
-        Utils.regrowsNewVersion(plugin, block, targetAge, location);
+        cropsManager.handleCropGrowing(ageable, block, location);
 
     }
 

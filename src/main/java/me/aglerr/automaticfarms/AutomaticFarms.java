@@ -3,6 +3,8 @@ package me.aglerr.automaticfarms;
 import com.cryptomorin.xseries.XMaterial;
 import me.aglerr.automaticfarms.listeners.BreakNewVersion;
 import me.aglerr.automaticfarms.listeners.BreakOldVersion;
+import me.aglerr.automaticfarms.managers.CropsManager;
+import me.aglerr.automaticfarms.managers.GrowingManager;
 import me.aglerr.automaticfarms.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -15,8 +17,13 @@ import java.util.Set;
 
 public class AutomaticFarms extends JavaPlugin {
 
-    private final Set<Material> crops = new HashSet<>();
-    private final Set<Block> growing = new HashSet<>();
+    private final CropsManager cropsManager = new CropsManager(this);
+    private final GrowingManager growingManager = new GrowingManager();
+
+    public static boolean IS_NEW_VERSION;
+
+    public final static int MAX_CROP = 7;
+    public final static int MAX_NETHER_WART = 3;
 
     @Override
     public void onEnable(){
@@ -24,13 +31,15 @@ public class AutomaticFarms extends JavaPlugin {
         this.saveDefaultConfig();
         this.getConfig().options().copyDefaults(true);
 
-        initializeCrops();
+        IS_NEW_VERSION = Utils.isNewVersion();
+
+        cropsManager.initializeCrops();
         registerListeners();
 
     }
 
     private void registerListeners(){
-        if(Utils.isNewVersion()) {
+        if(IS_NEW_VERSION) {
             Bukkit.getPluginManager().registerEvents(new BreakNewVersion(this), this);
             return;
         }
@@ -38,39 +47,11 @@ public class AutomaticFarms extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new BreakOldVersion(this), this);
     }
 
-    private void initializeCrops(){
-        FileConfiguration config = this.getConfig();
-
-        if(config.getBoolean("crops.carrots")){
-            crops.add(XMaterial.CARROTS.parseMaterial());
-        }
-
-        if(config.getBoolean("crops.potato")){
-            crops.add(XMaterial.POTATOES.parseMaterial());
-        }
-
-        if(config.getBoolean("crops.wheat")){
-            crops.add(XMaterial.WHEAT.parseMaterial());
-        }
-
-        if(config.getBoolean("crops.netherWart")){
-            crops.add(XMaterial.NETHER_WART.parseMaterial());
-        }
-
+    public CropsManager getCropsManager() {
+        return cropsManager;
     }
 
-    public void removeGrowingBlock(Block block){
-        growing.remove(block);
+    public GrowingManager getGrowingManager() {
+        return growingManager;
     }
-
-    public void addGrowingBlock(Block block){
-        growing.add(block);
-    }
-
-    public boolean isBlockGrowing(Block block){
-        return growing.contains(block);
-    }
-
-    public Set<Material> getCrops() { return crops; }
-
 }

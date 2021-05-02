@@ -1,8 +1,18 @@
 crops:
-  carrots: true
-  potato: true
-  wheat: true
-  netherWart: true
+  carrots:
+    # Should we enabled automatic regrows on carrot?
+    enabled: true
+    # How long should we wait carrot to regrows after broken?
+    waitTime: 15
+  potato:
+    enabled: true
+    waitTime: 15
+  wheat:
+    enabled: true
+    waitTime: 15
+  netherWart:
+    enabled: true
+    waitTime: 15
 
 checks:
   # Should we only regrowing crops that are already fully grown?
