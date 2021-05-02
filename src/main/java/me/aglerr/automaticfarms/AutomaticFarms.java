@@ -7,18 +7,13 @@ import me.aglerr.automaticfarms.managers.CropsManager;
 import me.aglerr.automaticfarms.managers.GrowingManager;
 import me.aglerr.automaticfarms.utils.Utils;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.HashSet;
-import java.util.Set;
 
 public class AutomaticFarms extends JavaPlugin {
 
-    private final CropsManager cropsManager = new CropsManager(this);
-    private final GrowingManager growingManager = new GrowingManager();
+    private CropsManager cropsManager;
+    private GrowingManager growingManager;
 
     public static boolean IS_NEW_VERSION;
 
@@ -32,6 +27,9 @@ public class AutomaticFarms extends JavaPlugin {
         this.getConfig().options().copyDefaults(true);
 
         IS_NEW_VERSION = Utils.isNewVersion();
+
+        cropsManager = new CropsManager(this);
+        growingManager = new GrowingManager();
 
         cropsManager.initializeCrops();
         registerListeners();

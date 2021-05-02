@@ -13,6 +13,9 @@ crops:
   netherWart:
     enabled: true
     waitTime: 15
+  cactus:
+    enabled: true
+    waitTime: 5
 
 checks:
   # Should we only regrowing crops that are already fully grown?

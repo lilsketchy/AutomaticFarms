@@ -1,5 +1,6 @@
 package me.aglerr.automaticfarms.listeners;
 
+import com.cryptomorin.xseries.XMaterial;
 import me.aglerr.automaticfarms.AutomaticFarms;
 import me.aglerr.automaticfarms.managers.CropsManager;
 import me.aglerr.automaticfarms.managers.GrowingManager;
@@ -7,6 +8,7 @@ import me.aglerr.automaticfarms.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -14,6 +16,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class BreakNewVersion implements Listener {
 
@@ -54,7 +57,83 @@ public class BreakNewVersion implements Listener {
         Ageable ageable = (Ageable) block.getBlockData();
         Location location = block.getLocation().clone().add(0.5, 1, 0.5);
 
-        cropsManager.handleCropGrowing(ageable, block, location);
+        this.handleCropGrowing(ageable, block, location);
+
+    }
+
+    @EventHandler
+    public void playerBreakCactus(BlockBreakEvent event){
+
+        Bukkit.broadcastMessage(event.getBlock().getType().toString());
+
+        Block block = event.getBlock();
+        Location location = block.getLocation().clone().add(0.5, 1, 0.5);
+
+        if(block.getType() == XMaterial.CACTUS.parseMaterial()){
+            if(block.getRelative(BlockFace.DOWN).getType() == XMaterial.CACTUS.parseMaterial()) return;
+
+            this.handleCactusGrowing(block.getLocation(), location);
+
+        }
+
+    }
+
+    private void handleCactusGrowing(Location blockLocation, Location particleLocation){
+
+        CropsManager cropsManager = plugin.getCropsManager();
+        int waitTime = cropsManager.getGrowingWaitTime(XMaterial.CACTUS.parseMaterial());
+
+        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> new BukkitRunnable(){
+            @Override
+            public void run(){
+
+                blockLocation.getBlock().setType(XMaterial.CACTUS.parseMaterial());
+                Bukkit.getScheduler().runTaskAsynchronously(plugin, () ->
+                        Utils.summonParticle(particleLocation));
+
+                this.cancel();
+
+            }
+        }.runTaskTimer(plugin, 0L, 20L), waitTime * 20);
+
+    }
+
+    private void handleCropGrowing(Ageable ageable, Block block, Location location){
+
+        ageable.setAge(0);
+        block.setBlockData(ageable);
+
+        CropsManager cropsManager = plugin.getCropsManager();
+        GrowingManager growingManager = plugin.getGrowingManager();
+
+        int waitTime = cropsManager.getGrowingWaitTime(block.getType());
+
+        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> new BukkitRunnable(){
+            @Override
+            public void run(){
+
+                if(!(block.getBlockData() instanceof Ageable)){
+                    this.cancel();
+                    return;
+                }
+
+                Ageable finalAgeable = (Ageable) block.getBlockData();
+                int age = finalAgeable.getAge();
+
+                if(age >= finalAgeable.getMaximumAge()){
+                    growingManager.removeGrowingBlock(block);
+                    this.cancel();
+                    return;
+                }
+
+                finalAgeable.setAge(age + 1);
+                block.setBlockData(finalAgeable);
+
+                Bukkit.getScheduler().runTaskAsynchronously(plugin, () ->
+                        Utils.summonParticle(location));
+
+            }
+        }.runTaskTimer(plugin, 0L, 20L), waitTime * 20);
 
     }
 

@@ -1,10 +1,12 @@
-me\aglerr\automaticfarms\managers\CropsManager$1.class
-me\aglerr\automaticfarms\managers\CropsManager.class
-me\aglerr\automaticfarms\managers\CropsManager$4.class
+me\aglerr\automaticfarms\listeners\BreakNewVersion$2.class
 me\aglerr\automaticfarms\listeners\BreakOldVersion.class
+me\aglerr\automaticfarms\listeners\BreakOldVersion$4.class
+me\aglerr\automaticfarms\managers\CropsManager.class
+me\aglerr\automaticfarms\listeners\BreakOldVersion$2.class
+me\aglerr\automaticfarms\listeners\BreakOldVersion$3.class
 me\aglerr\automaticfarms\AutomaticFarms.class
 me\aglerr\automaticfarms\managers\GrowingManager.class
-me\aglerr\automaticfarms\managers\CropsManager$2.class
-me\aglerr\automaticfarms\managers\CropsManager$3.class
+me\aglerr\automaticfarms\listeners\BreakOldVersion$1.class
 me\aglerr\automaticfarms\listeners\BreakNewVersion.class
+me\aglerr\automaticfarms\listeners\BreakNewVersion$1.class
 me\aglerr\automaticfarms\utils\Utils.class
