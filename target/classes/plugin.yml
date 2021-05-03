@@ -3,3 +3,4 @@ version: 1.0
 main: me.aglerr.automaticfarms.AutomaticFarms
 api-version: 1.13
 author: aglerr
+softdepend: [PlaceholderAPI]
