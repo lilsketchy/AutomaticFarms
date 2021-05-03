@@ -1,10 +1,13 @@
 package me.aglerr.automaticfarms;
 
 import com.cryptomorin.xseries.XMaterial;
+import me.aglerr.automaticfarms.configs.TemporaryDataConfiguration;
 import me.aglerr.automaticfarms.listeners.BreakNewVersion;
 import me.aglerr.automaticfarms.listeners.BreakOldVersion;
 import me.aglerr.automaticfarms.managers.CropsManager;
+import me.aglerr.automaticfarms.managers.DataManager;
 import me.aglerr.automaticfarms.managers.GrowingManager;
+import me.aglerr.automaticfarms.placeholderapi.FarmExpansion;
 import me.aglerr.automaticfarms.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -12,8 +15,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class AutomaticFarms extends JavaPlugin {
 
-    private CropsManager cropsManager;
-    private GrowingManager growingManager;
+    private final CropsManager cropsManager = new CropsManager(this);;
+    private final GrowingManager growingManager = new GrowingManager();;
+    private final DataManager dataManager = new DataManager(this);
+
+    private final TemporaryDataConfiguration dataConfiguration = new TemporaryDataConfiguration(this);
 
     public static boolean IS_NEW_VERSION;
 
@@ -25,15 +31,24 @@ public class AutomaticFarms extends JavaPlugin {
 
         this.saveDefaultConfig();
         this.getConfig().options().copyDefaults(true);
+        dataConfiguration.setup();
 
         IS_NEW_VERSION = Utils.isNewVersion();
-
-        cropsManager = new CropsManager(this);
-        growingManager = new GrowingManager();
 
         cropsManager.initializeCrops();
         registerListeners();
 
+        dataManager.loadPlayerData();
+
+        if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null){
+            new FarmExpansion(this).register();
+        }
+
+    }
+
+    @Override
+    public void onDisable(){
+        dataManager.savePlayerDataToConfig();
     }
 
     private void registerListeners(){
@@ -51,5 +66,13 @@ public class AutomaticFarms extends JavaPlugin {
 
     public GrowingManager getGrowingManager() {
         return growingManager;
+    }
+
+    public DataManager getDataManager() {
+        return dataManager;
+    }
+
+    public TemporaryDataConfiguration getDataConfiguration() {
+        return dataConfiguration;
     }
 }

@@ -2,7 +2,9 @@ package me.aglerr.automaticfarms.listeners;
 
 import com.cryptomorin.xseries.XMaterial;
 import me.aglerr.automaticfarms.AutomaticFarms;
+import me.aglerr.automaticfarms.enums.DataType;
 import me.aglerr.automaticfarms.managers.CropsManager;
+import me.aglerr.automaticfarms.managers.DataManager;
 import me.aglerr.automaticfarms.managers.GrowingManager;
 import me.aglerr.automaticfarms.utils.Utils;
 import org.bukkit.*;
@@ -10,6 +12,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -51,7 +54,6 @@ public class BreakOldVersion implements Listener {
         this.handleLegacyWheatGrowing(event, blockState, location);
         this.handleLegacyCropGrowing(event, blockState, location);
 
-
     }
 
     @EventHandler
@@ -63,15 +65,19 @@ public class BreakOldVersion implements Listener {
         if(block.getType() == XMaterial.CACTUS.parseMaterial()){
             if(block.getRelative(BlockFace.DOWN).getType() == XMaterial.CACTUS.parseMaterial()) return;
 
-            this.handleCactusGrowing(block.getLocation(), location);
+            this.handleCactusGrowing(event.getPlayer(), block.getLocation(), location);
 
         }
 
     }
 
-    private void handleCactusGrowing(Location blockLocation, Location particleLocation){
+    private void handleCactusGrowing(Player player, Location blockLocation, Location particleLocation){
 
         CropsManager cropsManager = plugin.getCropsManager();
+        DataManager dataManager = plugin.getDataManager();
+
+        dataManager.incrementOrAssignData(player.getUniqueId(), DataType.CACTUS);
+
         int waitTime = cropsManager.getGrowingWaitTime(XMaterial.CACTUS.parseMaterial());
 
         Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> new BukkitRunnable(){
@@ -93,14 +99,16 @@ public class BreakOldVersion implements Listener {
 
         FileConfiguration config = plugin.getConfig();
         CropsManager cropsManager = plugin.getCropsManager();
+        DataManager dataManager = plugin.getDataManager();
 
         int waitTime = cropsManager.getGrowingWaitTime(XMaterial.NETHER_WART.parseMaterial());
 
         if(blockState.getBlock().getType().toString().equalsIgnoreCase("NETHER_WARTS")){
             if(!config.getBoolean("crops.netherWart.enabled")) return;
 
-
             event.setCancelled(true);
+
+            dataManager.incrementOrAssignData(event.getPlayer().getUniqueId(), DataType.NETHER_WART);
 
             NetherWarts warts = (NetherWarts) blockState.getData();
             warts.setState(NetherWartsState.SEEDED);
@@ -145,6 +153,7 @@ public class BreakOldVersion implements Listener {
 
         FileConfiguration config = plugin.getConfig();
         CropsManager cropsManager = plugin.getCropsManager();
+        DataManager dataManager = plugin.getDataManager();
 
         int waitTime = cropsManager.getGrowingWaitTime(XMaterial.WHEAT.parseMaterial());
 
@@ -152,6 +161,8 @@ public class BreakOldVersion implements Listener {
             if(!config.getBoolean("crops.wheat.enabled")) return;
 
             event.setCancelled(true);
+
+            dataManager.incrementOrAssignData(event.getPlayer().getUniqueId(), DataType.WHEAT);
 
             Crops crop = (Crops) blockState.getData();
             crop.setState(CropState.getByData((byte) 0));
@@ -197,9 +208,16 @@ public class BreakOldVersion implements Listener {
         if(blockState.getData() instanceof Crops){
 
             CropsManager cropsManager = plugin.getCropsManager();
+            DataManager dataManager = plugin.getDataManager();
 
             if(!cropsManager.isMaterialExist(blockState.getType())) return;
             event.setCancelled(true);
+
+            DataType type = null;
+            if(blockState.getType() == XMaterial.POTATOES.parseMaterial()) type = DataType.POTATO;
+            if(blockState.getType() == XMaterial.CARROTS.parseMaterial()) type = DataType.CARROT;
+
+            dataManager.incrementOrAssignData(event.getPlayer().getUniqueId(), type);
 
             int waitTime = cropsManager.getGrowingWaitTime(blockState.getType());
 
